@@ -1,81 +1,120 @@
-document.addEventListener("DOMContentLoaded", () => {
-    // Add event listeners, initialize components
+// script.js
+const tracks = [
+    {
+        title: 'Song One',
+        artist: 'Artist One',
+        src: 'track1.mp3',
+        cover: 'cover1.jpg'
+    },
+    {
+        title: 'Song Two',
+        artist: 'Artist Two',
+        src: 'track2.mp3',
+        cover: 'cover2.jpg'
+    }
+    // Add more tracks as needed
+];
+
+let currentTrackIndex = 0;
+let isPlaying = false;
+let isShuffle = false;
+let isRepeat = false;
+
+const trackListElement = document.getElementById('track-list');
+const albumCoverElement = document.getElementById('album-cover');
+const trackTitleElement = document.getElementById('track-title');
+const trackArtistElement = document.getElementById('track-artist');
+const playPauseButton = document.getElementById('play-pause-btn');
+const prevButton = document.getElementById('prev-btn');
+const nextButton = document.getElementById('next-btn');
+const volumeControl = document.getElementById('volume-control');
+const progressBar = document.getElementById('progress-bar');
+const shuffleButton = document.getElementById('shuffle-btn');
+const repeatButton = document.getElementById('repeat-btn');
+
+const audio = new Audio();
+audio.src = tracks[currentTrackIndex].src;
+
+function loadTrack(index) {
+    const track = tracks[index];
+    albumCoverElement.src = track.cover;
+    trackTitleElement.textContent = track.title;
+    trackArtistElement.textContent = track.artist;
+    audio.src = track.src;
+}
+
+function togglePlayPause() {
+    if (isPlaying) {
+        audio.pause();
+        playPauseButton.textContent = 'Play';
+    } else {
+        audio.play();
+        playPauseButton.textContent = 'Pause';
+    }
+    isPlaying = !isPlaying;
+}
+
+function playNextTrack() {
+    if (isShuffle) {
+        currentTrackIndex = Math.floor(Math.random() * tracks.length);
+    } else {
+        currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
+    }
+    loadTrack(currentTrackIndex);
+    audio.play();
+}
+
+function playPrevTrack() {
+    currentTrackIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
+    loadTrack(currentTrackIndex);
+    audio.play();
+}
+
+function updateProgress() {
+    progressBar.value = (audio.currentTime / audio.duration) * 100;
+}
+
+function setProgress() {
+    audio.currentTime = (progressBar.value / 100) * audio.duration;
+}
+
+function toggleShuffle() {
+    isShuffle = !isShuffle;
+    shuffleButton.classList.toggle('active', isShuffle);
+}
+
+function toggleRepeat() {
+    isRepeat = !isRepeat;
+    repeatButton.classList.toggle('active', isRepeat);
+}
+
+audio.addEventListener('ended', () => {
+    if (isRepeat) {
+        audio.currentTime = 0;
+        audio.play();
+    } else {
+        playNextTrack();
+    }
 });
 
-function addEducation() {
-    let educationSection = document.getElementById('education-section');
-    let newEducation = document.createElement('div');
-    newEducation.innerHTML = `
-        <div class="form-group">
-            <label for="school">School</label>
-            <input type="text" class="form-control" required>
-        </div>
-        <div class="form-group">
-            <label for="degree">Degree</label>
-            <input type="text" class="form-control" required>
-        </div>
-        <div class="form-group">
-            <label for="year">Year</label>
-            <input type="number" class="form-control" required>
-        </div>
-    `;
-    educationSection.appendChild(newEducation);
-}
+audio.addEventListener('timeupdate', updateProgress);
+progressBar.addEventListener('input', setProgress);
+playPauseButton.addEventListener('click', togglePlayPause);
+prevButton.addEventListener('click', playPrevTrack);
+nextButton.addEventListener('click', playNextTrack);
+volumeControl.addEventListener('input', (e) => audio.volume = e.target.value);
+shuffleButton.addEventListener('click', toggleShuffle);
+repeatButton.addEventListener('click', toggleRepeat);
 
-function addWork() {
-    let workSection = document.getElementById('work-section');
-    let newWork = document.createElement('div');
-    newWork.innerHTML = `
-        <div class="form-group">
-            <label for="company">Company</label>
-            <input type="text" class="form-control" required>
-        </div>
-        <div class="form-group">
-            <label for="role">Role</label>
-            <input type="text" class="form-control" required>
-        </div>
-        <div class="form-group">
-            <label for="work-year">Year</label>
-            <input type="number" class="form-control" required>
-        </div>
-    `;
-    workSection.appendChild(newWork);
-}
-
-function addSkill() {
-    let skillsSection = document.getElementById('skills-section');
-    let newSkill = document.createElement('div');
-    newSkill.innerHTML = `
-        <div class="form-group">
-            <label for="skill">Skill</label>
-            <input type="text" class="form-control" required>
-        </div>
-    `;
-    skillsSection.appendChild(newSkill);
-}
-
-function selectTemplate() {
-    // Function to select and apply the chosen template
-}
-
-function previewResume() {
-    let resumePreview = document.getElementById('resume-preview');
-    let form = document.getElementById('resumeForm');
-
-    let name = form.querySelector('#name').value;
-    let email = form.querySelector('#email').value;
-    let phone = form.querySelector('#phone').value;
-    
-    let educationSection = '';
-    document.querySelectorAll('#education-section .form-group').forEach((edu, index) => {
-        let school = edu.querySelector('#school') ? edu.querySelector('#school').value : edu.querySelectorAll('input')[0].value;
-        let degree = edu.querySelector('#degree') ? edu.querySelector('#degree').value : edu.querySelectorAll('input')[1].value;
-        let year = edu.querySelector('#year') ? edu.querySelector('#year').value : edu.querySelectorAll('input')[2].value;
-        educationSection += <p><strong>${school}</strong>, ${degree}, ${year}</p>;
+tracks.forEach((track, index) => {
+    const li = document.createElement('li');
+    li.textContent = ${track.title} - ${track.artist};
+    li.addEventListener('click', () => {
+        currentTrackIndex = index;
+        loadTrack(index);
+        audio.play();
     });
+    trackListElement.appendChild(li);
+});
 
-    let workSection = '';
-    document.querySelectorAll('#work-section .form-group').forEach((work, index) => {
-        let company = work.querySelector('#company') ? work.querySelector('#company').value : work.querySelectorAll('input')[0].value;
-        let role = work.querySelector('#role') ? work.querySelector('#role').value : work.querySelectorAll('input')[1].value;
-    })
+loadTrack(currentTrackIndex);
